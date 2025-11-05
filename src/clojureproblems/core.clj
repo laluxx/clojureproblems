@@ -644,5 +644,213 @@
 ;; -> (= (__ (range 9) 3) '((0 3 6) (1 4 7) (2 5 8)))
 ;; -> (= (__ (range 10) 5) '((0 5) (1 6) (2 7) (3 8) (4 9)))
 
+(= ((fn [coll n]
+      (apply map vector (partition n coll))) [1 2 3 4 5 6] 2) '((1 3 5) (2 4 6)))
+
+(= ((fn [coll n]
+      (apply map vector (partition n coll))) (range 9) 3) '((0 3 6) (1 4 7) (2 5 8)))
+
+(= ((fn [coll n]
+      (apply map vector (partition n coll))) (range 10) 5) '((0 5) (1 6) (2 7) (3 8) (4 9)))
+
+;;; Problem 44, Rotate Sequence
+;; Difficulty: medium
+;; Write a function which can rotate a sequence in either direction.
+;; -> (= (__ 2 [1 2 3 4 5]) '(3 4 5 1 2))
+;; -> (= (__ -2 [1 2 3 4 5]) '(4 5 1 2 3))
+;; -> (= (__ 6 [1 2 3 4 5]) '(2 3 4 5 1))
+;; -> (= (__ 1 '(:a :b :c)) '(:b :c :a))
+;; -> (= (__ -4 '(:a :b :c)) '(:c :a :b))
+
+(= ((fn [n coll]
+      (let [len (count coll)
+            shift (mod n len)
+            [head tail] (split-at shift coll)]
+        (concat tail head))) 2 [1 2 3 4 5]) '(3 4 5 1 2))
+
+(= ((fn [n coll]
+      (let [len (count coll)
+            shift (mod n len)
+            [head tail] (split-at shift coll)]
+        (concat tail head))) -2 [1 2 3 4 5]) '(4 5 1 2 3))
+
+(= ((fn [n coll]
+      (let [len (count coll)
+            shift (mod n len)
+            [head tail] (split-at shift coll)]
+        (concat tail head))) 6 [1 2 3 4 5]) '(2 3 4 5 1))
+
+(= ((fn [n coll]
+      (let [len (count coll)
+            shift (mod n len)
+            [head tail] (split-at shift coll)]
+        (concat tail head))) 1 '(:a :b :c)) '(:b :c :a))
+
+(= ((fn [n coll]
+      (let [len (count coll)
+            shift (mod n len)
+            [head tail] (split-at shift coll)]
+        (concat tail head))) -4 '(:a :b :c)) '(:c :a :b))
 
 
+;;; Problem 45, Intro to Iterate
+;; Difficulty: easy
+;; The iterate function can be used to produce an infinite lazy sequence.
+;; -> (= __ (take 5 (iterate #(+ 3 %) 1)))
+
+(= '(1 4 7 10 13) (take 5 (iterate #(+ 3 %) 1)))
+
+;;; Problem 46, Flipping out
+;; Difficulty: medium
+;; Write a higher-order function which flips the order of the arguments of an input function.
+;; -> (= 3 ((__ nth) 2 [1 2 3 4 5]))
+;; -> (= true ((__ >) 7 8))
+;; -> (= 4 ((__ quot) 2 8))
+;; -> (= [1 2 3] ((__ take) [1 2 3 4 5] 3))
+
+(= 3 (((fn [f]
+         (fn [& args]
+           (apply f (reverse args)))) nth) 2 [1 2 3 4 5]))
+
+(= true (((fn [f]
+            (fn [& args]
+              (apply f (reverse args)))) >) 7 8))
+(= 4 (((fn [f]
+            (fn [& args]
+              (apply f (reverse args)))) quot) 2 8))
+
+(= [1 2 3] (((fn [f]
+            (fn [& args]
+              (apply f (reverse args)))) take) [1 2 3 4 5] 3))
+
+
+;;; Problem 47, Contain Yourself
+;; Difficulty: easy
+;; The contains? function checks if a KEY is present in a given collection. This often leads beginner clojurians to use it incorrectly with numerically indexed collections like vectors and lists.
+;; -> (contains? #{4 5 6} __)
+;; -> (contains? [1 1 1 1 1] __)
+;; -> (contains? {4 :a 2 :b} __)
+;; -> (not (contains? [1 2 4] __))
+
+(contains? #{4 5 6} 4)
+(contains? [1 1 1 1 1] 4)
+(contains? {4 :a 2 :b} 4)
+(not (contains? [1 2 4] 4))
+
+
+;;; Problem 48, Intro to some
+;; Difficulty: easy
+;; The some function takes a predicate function and a collection. It returns the first logical true value of (predicate x) where x is an item in the collection.
+;; -> (= __ (some #{2 7 6} [5 6 7 8]))
+;; -> (= __ (some #(when (even? %) %) [5 6 7 8]))
+
+(= 6 (some #{2 7 6} [5 6 7 8]))
+(= 6 (some #(when (even? %) %) [5 6 7 8]))
+
+
+;;; Problem 49, Split a sequence
+;; Difficulty: easy
+;; Write a function which will split a sequence into two parts.
+;; -> (= (__ 3 [1 2 3 4 5 6]) [[1 2 3] [4 5 6]])
+;; -> (= (__ 1 [:a :b :c :d]) [[:a] [:b :c :d]])
+;; -> (= (__ 2 [[1 2] [3 4] [5 6]]) [[[1 2] [3 4]] [[5 6]]])
+;; Special Restrictions : split-at
+
+(= ((fn [n coll]
+      [(take n coll) (drop n coll)]) 3 [1 2 3 4 5 6]) [[1 2 3] [4 5 6]])
+
+(= ((fn [n coll]
+      [(take n coll) (drop n coll)]) 1 [:a :b :c :d]) [[:a] [:b :c :d]])
+
+(= ((fn [n coll]
+      [(take n coll) (drop n coll)]) 2 [[1 2] [3 4] [5 6]]) [[[1 2] [3 4]] [[5 6]]])
+
+
+;;; Problem 50, Split by Type
+;; Difficulty: medium
+;; Write a function which takes a sequence consisting of items with different types and splits them up into a set of homogeneous sub-sequences. The internal order of each sub-sequence should be maintained, but the sub-sequences themselves can be returned in any order (this is why 'set' is used in the test cases).
+;; -> (= (set (__ [1 :a 2 :b 3 :c])) #{[1 2 3] [:a :b :c]})
+;; -> (= (set (__ [:a "foo"  "bar" :b])) #{[:a :b] ["foo" "bar"]})
+;; -> (= (set (__ [[1 2] :a [3 4] 5 6 :b])) #{[[1 2] [3 4]] [:a :b] [5 6]})
+
+(= (set ((fn [coll]
+           (map vec (vals (group-by type coll))))
+         [1 :a 2 :b 3 :c])) #{[1 2 3] [:a :b :c]})
+
+(= (set ((fn [coll]
+           (map vec (vals (group-by type coll))))
+         [:a "foo"  "bar" :b])) #{[:a :b] ["foo" "bar"]})
+
+(= (set ((fn [coll]
+           (map vec (vals (group-by type coll))))
+         [[1 2] :a [3 4] 5 6 :b])) #{[[1 2] [3 4]] [:a :b] [5 6]})
+
+
+;;; Problem 51, Advanced Destructuring
+;; Difficulty: easy
+;; Here is an example of some more sophisticated destructuring.
+;; -> (= [1 2 [3 4 5] [1 2 3 4 5]] (let [[a b & c :as d] __] [a b c d]))
+
+
+(= [1 2 [3 4 5] [1 2 3 4 5]] (let [[a b & c :as d] [1 2 3 4 5]] [a b c d]))
+
+
+;;; Problem 52, Intro to Destructuring
+;; Difficulty: elementary
+;; Let bindings and function parameter lists support destructuring.
+;; -> (= [2 4] (let [[a b c d e f g] (range)] __))
+
+(= [2 4] (let [[a b c d e f g] (range)] [c e]))
+
+
+;;; Problem 53, Longest Increasing Sub-Seq
+;; aDifficulty: hard
+;; Given a vector of integers, find the longest consecutive sub-sequence of increasing numbers. If two sub-sequences have the same length, use the one that occurs first. An increasing sub-sequence must have a length of 2 or greater to qualify.
+;; -> (= (__ [1 0 1 2 3 0 4 5]) [0 1 2 3])
+;; -> (= (__ [5 6 1 3 2 7]) [5 6])
+;; -> (= (__ [2 3 3 4 5]) [3 4 5])
+;; -> (= (__ [7 6 5 4]) [])
+
+
+(= ((fn [c]
+      (->> c
+           (map-indexed (fn [i v] [(- i v) v]))
+           (partition-by first)
+           (filter #(> (count %) 1))
+           (reduce (fn [a s] (if (> (count a) (count s)) a s)) [])
+           (map last))) [1 0 1 2 3 0 4 5]) [0 1 2 3])
+
+(= ((fn [c]
+      (->> c
+           (map-indexed (fn [i v] [(- i v) v]))
+           (partition-by first)
+           (filter #(> (count %) 1))
+           (reduce (fn [a s] (if (> (count a) (count s)) a s)) [])
+           (map last))) [5 6 1 3 2 7]) [5 6])
+
+(= ((fn [c]
+      (->> c
+           (map-indexed (fn [i v] [(- i v) v]))
+           (partition-by first)
+           (filter #(> (count %) 1))
+           (reduce (fn [a s] (if (> (count a) (count s)) a s)) [])
+           (map last))) [2 3 3 4 5]) [3 4 5])
+
+(= ((fn [c]
+      (->> c
+           (map-indexed (fn [i v] [(- i v) v]))
+           (partition-by first)
+           (filter #(> (count %) 1))
+           (reduce (fn [a s] (if (> (count a) (count s)) a s)) [])
+           (map last))) [7 6 5 4]) [])
+
+
+;;; Problem 54, Partition a Sequence
+;; Difficulty: medium
+;; Write a function which returns a sequence of lists of x items each. Lists of less than x items should not be returned.
+;; -> (= (__ 3 (range 9)) '((0 1 2) (3 4 5) (6 7 8)))
+;; -> (= (__ 2 (range 8)) '((0 1) (2 3) (4 5) (6 7)))
+;; -> (= (__ 3 (range 8)) '((0 1 2) (3 4 5)))
+;; Special Restrictions : partition,partition-allr
+
+(= (__ 3 (range 9)) '((0 1 2) (3 4 5) (6 7 8)))
