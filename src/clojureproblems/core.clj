@@ -1,5 +1,8 @@
 (ns project.core
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str] [clojure.math :as math])
+  (:import [java.math BigInteger]
+           [java.security SecureRandom]))
+
 
 ;; You can find those problems at https://4clojure.oxal.org/
 
@@ -853,4 +856,45 @@
 ;; -> (= (__ 3 (range 8)) '((0 1 2) (3 4 5)))
 ;; Special Restrictions : partition,partition-allr
 
-(= (__ 3 (range 9)) '((0 1 2) (3 4 5) (6 7 8)))
+(= ((fn par [n coll]
+      (when (>= (count coll) n)
+        (cons (take n coll) (par n (drop n coll))))) 3 (range 9))
+   '((0 1 2) (3 4 5) (6 7 8)))
+
+(= ((fn par [n coll]
+      (when (>= (count coll) n)
+        (cons (take n coll) (par n (drop n coll)))))
+    2 (range 8)) '((0 1) (2 3) (4 5) (6 7)))
+
+(= ((fn par [n coll]
+      (when (>= (count coll) n)
+        (cons (take n coll) (par n (drop n coll)))))
+    3 (range 8)) '((0 1 2) (3 4 5)))
+
+
+;;; Problem 55, Count Occurences
+;; Difficulty: medium
+;; Write a function which returns a map containing the number of occurences of each distinct item in a sequence.
+;; -> (= (__ [1 1 2 3 2 1 1]) {1 4, 2 2, 3 1})
+;; -> (= (__ [:b :a :b :a :b]) {:a 2, :b 3})
+;; -> (= (__ '([1 2] [1 3] [1 3])) {[1 2] 1, [1 3] 2})
+;; Special Restrictions : frequencies
+
+ 
+(= (#(update-vals (group-by identity %) count) [1 1 2 3 2 1 1]) {1 4, 2 2, 3 1})
+(= (#(update-vals (group-by identity %) count) [:b :a :b :a :b]) {:a 2, :b 3})
+(= (#(update-vals (group-by identity %) count) '([1 2] [1 3] [1 3])) {[1 2] 1, [1 3] 2})
+
+
+;;; Problem 56, Find Distinct Items
+;; Difficulty: medium
+;; Write a function which removes the duplicates from a sequence. Order of the items must be maintained.
+;; -> (= (__ [1 2 1 3 1 2 4]) [1 2 3 4])
+;; -> (= (__ [:a :a :b :b :c :c]) [:a :b :c])
+;; -> (= (__ '([2 4] [1 2] [1 3] [1 3])) '([2 4] [1 2] [1 3]))
+;; -> (= (__ (range 50)) (range 50))
+;; Special Restrictions : distinct
+
+
+
+
